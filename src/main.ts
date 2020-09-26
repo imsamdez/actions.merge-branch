@@ -32,6 +32,7 @@ async function run(): Promise<void> {
   }
   try {
     await merge(base, compare);
+    return;
   } catch (err) {
     return core.setFailed(`Merge failed! ${err.message}`);
   }
@@ -69,7 +70,7 @@ async function getBranchStatus(branch: string): Promise<GithubStatus | null> {
   return null;
 }
 
-async function merge(base: string, head: string): Promise<boolean> {
+async function merge(base: string, head: string): Promise<void> {
   try {
     await octokit.repos
       .merge({
