@@ -1,3 +1,4 @@
+/* eslint-disable github/no-then */
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import {ActionInputs, GithubStatus} from './enums';
