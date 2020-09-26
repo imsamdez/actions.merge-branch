@@ -1,11 +1,20 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Merge branch'
+description: 'Merge a branch into another'
+author: 'samdez'
 inputs:
-  milliseconds: # change this
+  base:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Branch that will welcome the merge'
+  compare:
+    required: true
+    description: 'Branch to merge'
+  wait_for_ci:
+    required: false
+    description: 'Action will wait for CI on compare branch before merging'
+    default: true
+  github_token:
+    required: true
+    description: 'A github token'
 runs:
   using: 'node12'
   main: 'dist/index.js'

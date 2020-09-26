@@ -6,6 +6,7 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
+    "build:dev": "tsc --watch",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
@@ -25,7 +26,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.5"
+    "@actions/core": "^1.2.5",
+    "@actions/github": "^4.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
