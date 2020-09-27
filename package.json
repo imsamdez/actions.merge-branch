@@ -1,6 +1,6 @@
 {
   "name": "actions.merge-branch",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "A Github Action that merge an branch into another",
   "main": "lib/main.js",
