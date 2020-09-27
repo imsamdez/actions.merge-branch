@@ -27,7 +27,7 @@ jobs:
 
 ## Wait for CI
 
-You can passe the `wait_for_ci` options. At the moment, this options only checks if compared branch is in _ready_ state. If not, the action will fail (a retrial implementation may come later).
+You can pass the `wait_for_ci` options. At the moment, this options only checks if compared branch is in _ready_ state. If not, the action will fail (a retrial implementation may come later).
 
 ```yml
 name: Scheduled merge master in stage
