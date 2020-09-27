@@ -1435,35 +1435,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.merge = exports.getBranchStatus = exports.isBranchExist = exports.run = void 0;
 /* eslint-disable github/no-then */
 const core = __importStar(__webpack_require__(186));
 const github = __importStar(__webpack_require__(438));
-const enums_1 = __webpack_require__(275);
+const Enums = __importStar(__webpack_require__(275));
 const helpers_1 = __webpack_require__(8);
-const octokit = github.getOctokit(core.getInput(enums_1.ActionInputs.GITHUB_TOKEN));
+const octokit = github.getOctokit(core.getInput(Enums.ActionInputs.GITHUB_TOKEN));
 const repo = github.context.repo;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const base = core.getInput(enums_1.ActionInputs.BRANCH_BASE);
-        const compare = core.getInput(enums_1.ActionInputs.BRANCH_COMPARE);
-        const waitForCi = helpers_1.string2boolean(core.getInput(enums_1.ActionInputs.WAIT_FOR_CI));
-        const isBaseExist = yield isBranchExist(base);
-        const isCompareExist = yield isBranchExist(compare);
-        let compareStatus = null;
-        if (isBaseExist === false) {
-            return core.setFailed(`Base branch (${base}) could not be found!`);
-        }
-        if (isCompareExist === false) {
-            return core.setFailed(`Compare branch (${compare}) could not be found!`);
-        }
-        if (waitForCi === true) {
-            compareStatus = yield getBranchStatus(compare);
-            if (compareStatus === enums_1.GithubStatus.SUCCESS) {
-                // @TODO Implement a retrial mechanism
-                return core.setFailed(`Compare branch (${compare}) not ready for merge! Current status is ${compareStatus}!`);
-            }
-        }
         try {
+            const base = core.getInput(Enums.ActionInputs.BRANCH_BASE);
+            const compare = core.getInput(Enums.ActionInputs.BRANCH_COMPARE);
+            const waitForCi = helpers_1.string2boolean(core.getInput(Enums.ActionInputs.WAIT_FOR_CI));
+            const isBaseExist = yield isBranchExist(base);
+            const isCompareExist = yield isBranchExist(compare);
+            let compareStatus = null;
+            if (isBaseExist === false) {
+                return core.setFailed(`Base branch (${base}) could not be found!`);
+            }
+            if (isCompareExist === false) {
+                return core.setFailed(`Compare branch (${compare}) could not be found!`);
+            }
+            if (waitForCi === true) {
+                compareStatus = yield getBranchStatus(compare);
+                if (compareStatus === Enums.GithubStatus.SUCCESS) {
+                    // @TODO Implement a retrial mechanism
+                    return core.setFailed(`Compare branch (${compare}) not ready for merge! Current status is ${compareStatus}!`);
+                }
+            }
             yield merge(base, compare);
             return;
         }
@@ -1472,27 +1473,42 @@ function run() {
         }
     });
 }
+exports.run = run;
 function isBranchExist(branch) {
     return __awaiter(this, void 0, void 0, function* () {
-        const resultBranch = yield octokit.repos
-            .getBranch(Object.assign(Object.assign({}, repo), { branch }))
-            .then(response => response.data);
-        core.debug(`isBranchExist - getBranch returned ${JSON.stringify(resultBranch)}`);
-        return resultBranch != null;
+        try {
+            const resultBranch = yield octokit.repos
+                .getBranch(Object.assign(Object.assign({}, repo), { branch }))
+                .then(response => response.data);
+            core.debug(`isBranchExist - getBranch returned ${JSON.stringify(resultBranch)}`);
+            return true;
+        }
+        catch (err) {
+            core.error(`isBranchExist - getBranch returned ${err.message}`);
+            return false;
+        }
     });
 }
+exports.isBranchExist = isBranchExist;
 function getBranchStatus(branch) {
     return __awaiter(this, void 0, void 0, function* () {
-        const resultStatus = yield octokit.repos
-            .listCommitStatusesForRef(Object.assign(Object.assign({}, repo), { ref: branch }))
-            .then(response => response.data);
-        core.debug(`getBranchStatus - listCommitStatusesForRef returned ${JSON.stringify(resultStatus)}`);
-        if (resultStatus.length !== 0) {
-            return resultStatus[0].state;
+        try {
+            const resultStatus = yield octokit.repos
+                .listCommitStatusesForRef(Object.assign(Object.assign({}, repo), { ref: branch }))
+                .then(response => response.data);
+            core.debug(`getBranchStatus - listCommitStatusesForRef returned ${JSON.stringify(resultStatus)}`);
+            if (resultStatus.length !== 0) {
+                return resultStatus[0].state;
+            }
+            return null;
         }
-        return null;
+        catch (err) {
+            core.error(`isBranchExist - getBranch returned ${err.message}`);
+            return null;
+        }
     });
 }
+exports.getBranchStatus = getBranchStatus;
 function merge(base, head) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -1501,13 +1517,17 @@ function merge(base, head) {
                 head }))
                 .then(response => response.data);
             core.debug(`merge - Successfully done! (${base} ← ${head})`);
+            return true;
         }
         catch (err) {
             return Promise.reject(err);
         }
     });
 }
-run();
+exports.merge = merge;
+if (process.env.NODE_ENV !== 'test') {
+    run();
+}
 
 
 /***/ }),
@@ -1535,6 +1555,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(351);
+const file_command_1 = __webpack_require__(717);
+const utils_1 = __webpack_require__(278);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -1561,9 +1583,17 @@ var ExitCode;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    const convertedVal = command_1.toCommandValue(val);
+    const convertedVal = utils_1.toCommandValue(val);
     process.env[name] = convertedVal;
-    command_1.issueCommand('set-env', { name }, convertedVal);
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
+        file_command_1.issueCommand('ENV', commandValue);
+    }
+    else {
+        command_1.issueCommand('set-env', { name }, convertedVal);
+    }
 }
 exports.exportVariable = exportVariable;
 /**
@@ -1579,7 +1609,13 @@ exports.setSecret = setSecret;
  * @param inputPath
  */
 function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
 exports.addPath = addPath;
@@ -2370,6 +2406,7 @@ exports.request = request;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GithubStatus = exports.ActionInputs = void 0;
+// eslint-disable no-shadow
 var ActionInputs;
 (function (ActionInputs) {
     ActionInputs["GITHUB_TOKEN"] = "github_token";
@@ -2385,6 +2422,32 @@ var GithubStatus;
     GithubStatus["PENDING"] = "pending";
 })(GithubStatus = exports.GithubStatus || (exports.GithubStatus = {}));
 
+
+/***/ }),
+
+/***/ 278:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
 
 /***/ }),
 
@@ -2467,6 +2530,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(278);
 /**
  * Commands
  *
@@ -2520,28 +2584,14 @@ class Command {
         return cmdStr;
     }
 }
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
 function escapeData(s) {
-    return toCommandValue(s)
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return toCommandValue(s)
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -5152,6 +5202,42 @@ module.exports.Hook = Hook
 module.exports.Singular = Hook.Singular
 module.exports.Collection = Hook.Collection
 
+
+/***/ }),
+
+/***/ 717:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+// For internal use, subject to change.
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__webpack_require__(747));
+const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(278);
+function issueCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueCommand = issueCommand;
+//# sourceMappingURL=file-command.js.map
 
 /***/ }),
 
