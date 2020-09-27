@@ -13,7 +13,7 @@
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest --passWithNoTests",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test",
-    "release": "release-it --ci --only-version"
+    "release": "release-it --only-version"
   },
   "repository": {
     "type": "git",
