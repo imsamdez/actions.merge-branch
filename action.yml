@@ -1,4 +1,4 @@
-name: 'Merge branch'
+name: 'imsamdez/actions.merge-branch'
 description: 'Merge a branch into another'
 author: 'samdez'
 inputs:
