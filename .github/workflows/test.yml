@@ -21,4 +21,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          milliseconds: 1000
+          base: test_base
+          compare: test_compare
+          github_token: ${{ secrets.GITHUB_TOKEN }}
