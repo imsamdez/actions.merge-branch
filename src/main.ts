@@ -25,7 +25,7 @@ export async function run(): Promise<void> {
     if (waitForCi === true) {
       compareStatus = await getBranchStatus(compare);
 
-      if (compareStatus === GithubStatus.SUCCESS) {
+      if (compareStatus !== GithubStatus.SUCCESS) {
         // @TODO Implement a retrial mechanism
         return core.setFailed(
           `Compare branch (${compare}) not ready for merge! Current status is ${compareStatus}!`
