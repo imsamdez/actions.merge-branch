@@ -1,0 +1,8 @@
+git:
+  commit: true
+  push: true
+github:
+  release: true
+  releaseName: 'v${version}'
+npm:
+  publish: false
