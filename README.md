@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: 'Merge'
         id: merge
-        uses: imsamdez/actions.merge-branch@1.0.1
+        uses: imsamdez/actions.merge-branch@v1.0.5
         with:
           base: stage # Change this according to your need
           compare: master # Change this according to your need
