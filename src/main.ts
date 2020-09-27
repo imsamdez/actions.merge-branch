@@ -83,7 +83,7 @@ export async function getBranchStatus(
   }
 }
 
-export async function merge(base: string, head: string): Promise<void> {
+export async function merge(base: string, head: string): Promise<boolean> {
   try {
     await octokit.repos
       .merge({
@@ -94,6 +94,7 @@ export async function merge(base: string, head: string): Promise<void> {
       .then(response => response.data);
 
     core.debug(`merge - Successfully done! (${base} ← ${head})`);
+    return true;
   } catch (err) {
     return Promise.reject(err);
   }
