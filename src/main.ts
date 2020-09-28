@@ -78,7 +78,9 @@ export async function getBranchStatus(
     }
     return null;
   } catch (err) {
-    core.error(`isBranchExist - getBranch returned ${err.message}`);
+    core.error(
+      `getBranchStatus - listCommitStatusesForRef returned ${err.message}`
+    );
     return null;
   }
 }
