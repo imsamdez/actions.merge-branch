@@ -74,7 +74,7 @@ nockInstance.get(MockedGithubEndpoint.getBranchStatusCompare).reply(200, [
 nockInstance.post(MockedGithubEndpoint.merge).reply(200);
 
 describe('Main', () => {
-  let isBranchExist: Function;
+  let getBranch: Function;
   let getBranchStatus: Function;
   let run: Function;
   let merge: Function;
@@ -82,22 +82,22 @@ describe('Main', () => {
   beforeAll(async () => {
     const main = await import('./../src/main');
 
-    isBranchExist = main.isBranchExist;
+    getBranch = main.getBranch;
     getBranchStatus = main.getBranchStatus;
     run = main.run;
     merge = main.merge;
   });
 
-  describe('isBranchExist', () => {
-    it('should return true if branch exists', async () => {
-      const result = await isBranchExist(input_base);
+  describe('getBranch', () => {
+    it('should return not null if branch exists', async () => {
+      const result = await getBranch(input_base);
 
-      expect(result).toEqual(true);
+      expect(result).not.toBeNull();
     });
     it('should return false if branch does not exists', async () => {
-      const result = await isBranchExist('unk');
+      const result = await getBranch('unk');
 
-      expect(result).toEqual(false);
+      expect(result).toBeNull();
     });
   });
   describe('getBranchStatus', () => {
