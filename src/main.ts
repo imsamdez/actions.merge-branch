@@ -30,7 +30,7 @@ export async function run(): Promise<void> {
       if (compareStatus !== GithubStatus.SUCCESS) {
         // @TODO Implement a retrial mechanism
         return core.setFailed(
-          `Compare branch (${compare}) not ready for merge! Current status is ${compareStatus}!`
+          `Compare branch (${compareName}) not ready for merge! Current status is ${compareStatus}!`
         );
       }
     }
