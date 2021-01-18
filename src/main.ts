@@ -9,21 +9,23 @@ const repo = github.context.repo;
 
 export async function run(): Promise<void> {
   try {
-    const base = core.getInput(ActionInputs.BRANCH_BASE);
-    const compare = core.getInput(ActionInputs.BRANCH_COMPARE);
+    const baseName = core.getInput(ActionInputs.BRANCH_BASE);
+    const compareName = core.getInput(ActionInputs.BRANCH_COMPARE);
     const waitForCi = string2boolean(core.getInput(ActionInputs.WAIT_FOR_CI));
-    const isBaseExist = await isBranchExist(base);
-    const isCompareExist = await isBranchExist(compare);
+    const base = await getBranch(baseName);
+    const compare = await getBranch(compareName);
     let compareStatus = null;
 
-    if (isBaseExist === false) {
-      return core.setFailed(`Base branch (${base}) could not be found!`);
+    if (base == null) {
+      return core.setFailed(`Base branch (${baseName}) could not be found!`);
     }
-    if (isCompareExist === false) {
-      return core.setFailed(`Compare branch (${compare}) could not be found!`);
+    if (compare == null) {
+      return core.setFailed(
+        `Compare branch (${compareName}) could not be found!`
+      );
     }
     if (waitForCi === true) {
-      compareStatus = await getBranchStatus(compare);
+      compareStatus = await getBranchStatus(compareName);
 
       if (compareStatus !== GithubStatus.SUCCESS) {
         // @TODO Implement a retrial mechanism
@@ -32,14 +34,15 @@ export async function run(): Promise<void> {
         );
       }
     }
-    await merge(base, compare);
+    await merge(baseName, compareName, compare.commit.sha);
     return;
   } catch (err) {
     return core.setFailed(`Merge failed! ${err.message}`);
   }
 }
 
-export async function isBranchExist(branch: string): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getBranch(branch: string): Promise<any> {
   try {
     const resultBranch = await octokit.repos
       .getBranch({
@@ -51,10 +54,10 @@ export async function isBranchExist(branch: string): Promise<boolean> {
     core.debug(
       `isBranchExist - getBranch returned ${JSON.stringify(resultBranch)}`
     );
-    return true;
+    return resultBranch;
   } catch (err) {
     core.error(`isBranchExist - getBranch returned ${err.message}`);
-    return false;
+    return null;
   }
 }
 export async function getBranchStatus(
@@ -85,7 +88,11 @@ export async function getBranchStatus(
   }
 }
 
-export async function merge(base: string, head: string): Promise<boolean> {
+export async function merge(
+  base: string,
+  head: string,
+  headSha: string
+): Promise<boolean> {
   try {
     await octokit.repos
       .merge({
@@ -95,7 +102,9 @@ export async function merge(base: string, head: string): Promise<boolean> {
       })
       .then(response => response.data);
 
-    core.debug(`merge - Successfully done! (${base} ← ${head})`);
+    core.debug(
+      `merge - Successfully done! (${base} ← ${head} on sha ${headSha})`
+    );
     return true;
   } catch (err) {
     return Promise.reject(err);
