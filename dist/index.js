@@ -100,7 +100,7 @@ function run() {
                 compareStatus = yield getBranchStatus(compareName);
                 if (compareStatus !== enums_1.GithubStatus.SUCCESS) {
                     // @TODO Implement a retrial mechanism
-                    return core.setFailed(`Compare branch (${compare}) not ready for merge! Current status is ${compareStatus}!`);
+                    return core.setFailed(`Compare branch (${compareName}) not ready for merge! Current status is ${compareStatus}!`);
                 }
             }
             yield merge(baseName, compareName, compare.commit.sha);
@@ -151,9 +151,8 @@ exports.getBranchStatus = getBranchStatus;
 function merge(base, head, headSha) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield octokit.repos
-                .merge(Object.assign(Object.assign({}, repo), { base,
-                head }))
+            yield octokit
+                .request('PATCH /repos/{owner}/{repo}/git/refs/{ref}', Object.assign(Object.assign({}, repo), { ref: base, sha: headSha }))
                 .then(response => response.data);
             core.debug(`merge - Successfully done! (${base} ← ${head} on sha ${headSha})`);
             return true;

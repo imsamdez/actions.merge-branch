@@ -43,7 +43,9 @@ const MockedGithubEndpoint = {
   getBranchStatusCompare: `/repos/${
     process.env[EnvVariable.GITHUB_REPOSITORY]
   }/commits/${input_compare}/statuses`,
-  merge: `/repos/${process.env[EnvVariable.GITHUB_REPOSITORY]}/merges`,
+  merge: `/repos/${process.env[EnvVariable.GITHUB_REPOSITORY]}/git/refs/${
+    process.env[EnvVariable.BRANCH_BASE]
+  }`,
 
   failGetBranch: `/repos/${
     process.env[EnvVariable.GITHUB_REPOSITORY]
@@ -71,7 +73,7 @@ nockInstance.get(MockedGithubEndpoint.getBranchStatusCompare).reply(200, [
     state: GithubStatus.SUCCESS
   }
 ]);
-nockInstance.post(MockedGithubEndpoint.merge).reply(200);
+nockInstance.patch(MockedGithubEndpoint.merge).reply(200);
 
 describe('Main', () => {
   let getBranch: Function;

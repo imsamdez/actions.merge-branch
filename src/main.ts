@@ -94,11 +94,11 @@ export async function merge(
   headSha: string
 ): Promise<boolean> {
   try {
-    await octokit.repos
-      .merge({
+    await octokit
+      .request('PATCH /repos/{owner}/{repo}/git/refs/{ref}', {
         ...repo,
-        base,
-        head
+        ref: base,
+        sha: headSha
       })
       .then(response => response.data);
 
