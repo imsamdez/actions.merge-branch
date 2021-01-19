@@ -111,6 +111,4 @@ export async function merge(
   }
 }
 
-if (process.env.NODE_ENV !== 'test') {
-  run();
-}
+run();

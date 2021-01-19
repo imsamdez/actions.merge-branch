@@ -79,6 +79,8 @@ const core = __importStar(__webpack_require__(186));
 const github = __importStar(__webpack_require__(438));
 const enums_1 = __webpack_require__(275);
 const helpers_1 = __webpack_require__(8);
+// eslint-disable-next-line no-console
+console.log(process.env);
 const octokit = github.getOctokit(core.getInput(enums_1.ActionInputs.GITHUB_TOKEN));
 const repo = github.context.repo;
 function run() {
@@ -163,9 +165,7 @@ function merge(base, head, headSha) {
     });
 }
 exports.merge = merge;
-if (process.env.NODE_ENV !== 'test') {
-    run();
-}
+run();
 
 
 /***/ }),
