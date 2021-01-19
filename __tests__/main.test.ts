@@ -43,7 +43,7 @@ const MockedGithubEndpoint = {
   getBranchStatusCompare: `/repos/${
     process.env[EnvVariable.GITHUB_REPOSITORY]
   }/commits/${input_compare}/statuses`,
-  merge: `/repos/${process.env[EnvVariable.GITHUB_REPOSITORY]}/git/refs/${
+  merge: `/repos/${process.env[EnvVariable.GITHUB_REPOSITORY]}/git/refs/heads/${
     process.env[EnvVariable.BRANCH_BASE]
   }`,
 

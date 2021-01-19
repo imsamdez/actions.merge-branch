@@ -152,7 +152,7 @@ function merge(base, head, headSha) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield octokit
-                .request('PATCH /repos/{owner}/{repo}/git/refs/{ref}', Object.assign(Object.assign({}, repo), { ref: base, sha: headSha }))
+                .request('PATCH /repos/{owner}/{repo}/git/refs/heads/{ref}', Object.assign(Object.assign({}, repo), { ref: base, sha: headSha }))
                 .then(response => response.data);
             core.debug(`merge - Successfully done! (${base} ← ${head} on sha ${headSha})`);
             return true;

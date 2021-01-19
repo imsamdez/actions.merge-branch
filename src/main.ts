@@ -95,7 +95,7 @@ export async function merge(
 ): Promise<boolean> {
   try {
     await octokit
-      .request('PATCH /repos/{owner}/{repo}/git/refs/{ref}', {
+      .request('PATCH /repos/{owner}/{repo}/git/refs/heads/{ref}', {
         ...repo,
         ref: base,
         sha: headSha
